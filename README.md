@@ -1,5 +1,4 @@
 # Eventify — Event Registration and Ticketing System
-This project is a high-performance REST API designed for event management. Built with Go using the Gin framework and GORM, it features a modern multi-page frontend. The system handles secure user authentication, event creation, and concurrency-safe ticket booking through a dedicated three-layer protection strategy.
 
 Table of Contents
 - [Architecture Overview](#architecture-overview)
