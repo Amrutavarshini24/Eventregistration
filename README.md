@@ -6,7 +6,6 @@ Table of Contents
 - [Database Schema and Concurrency](#database-schema-and-concurrency)
 - [REST API Documentation](#rest-api-documentation)
 - [Setup and Running Instructions](#setup-and-running-instructions)
-- [How AI Was Used](#how-ai-was-used)
 - [Project Structure](#project-structure)
 - [Author](#author)
 
@@ -156,13 +155,6 @@ Returns all events that the current user has registered for.
 3. **Open the Frontend**:
    Simply open `frontend/index.html` in your web browser or use the VS Code Live Server extension.
 
-## How AI Was Used
-AI was used as a guide to help build and refine various parts of this project:
-- Establishing the main project structure and directory organization.
-- Implementing the logic that prevents concurrent booking conflicts.
-- Redesigning the website from a single page into a multi-page application.
-- Polishing the visual design with modern colors and smooth animations.
-- Organizing and drafting the technical descriptions in this documentation.
 
 ## Backend API Verification
 You can use these `curl` commands in your terminal to verify that the backend is running correctly:
