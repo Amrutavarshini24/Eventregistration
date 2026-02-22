@@ -1,0 +1,25 @@
+# Binaries and executables
+backend/backend.exe
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+
+# Database
+backend/event_ticketing_dev.db
+*.db
+*.db-journal
+
+# Environment variables
+.env
+
+# Go dependencies
+vendor/
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# VS Code
+.vscode/

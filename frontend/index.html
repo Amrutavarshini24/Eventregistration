@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Eventify — Discover Extraordinary Events</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+    rel="stylesheet" />
+  <link rel="stylesheet" href="./style.css" />
+</head>
+
+<body data-page="home">
+
+  <!-- NAVBAR -->
+  <nav class="navbar" id="navbar">
+    <div class="nav-inner">
+      <a class="brand" href="./index.html">
+        <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+          <rect width="28" height="28" rx="8" fill="url(#grad)" />
+          <path d="M8 14l4 4 8-8" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" />
+          <defs>
+            <linearGradient id="grad" x1="0" y1="0" x2="28" y2="28" gradientUnits="userSpaceOnUse">
+              <stop stop-color="#7c3aed" />
+              <stop offset="1" stop-color="#2563eb" />
+            </linearGradient>
+          </defs>
+        </svg>
+        Eventify
+      </a>
+      <div class="nav-links">
+        <a href="./index.html" class="nav-link active">Browse Events</a>
+        <a href="./tickets.html" class="nav-link auth-req" style="display:none">My Tickets</a>
+        <a href="./create.html" class="nav-link org-req" style="display:none">Create Event</a>
+      </div>
+      <div class="nav-actions">
+        <div id="guestActions">
+          <a href="./login.html" class="btn btn-ghost">Log in</a>
+          <a href="./register.html" class="btn btn-primary">Sign up</a>
+        </div>
+        <div id="userActions" style="display:none">
+          <div class="avatar-menu">
+            <button class="avatar-btn" id="avatarBtn" onclick="toggleUserMenu()"><span
+                id="avatarInitial">?</span></button>
+            <div class="user-dropdown" id="userDropdown">
+              <div class="dropdown-header">
+                <span id="dropdownName">User</span>
+                <span class="dropdown-role" id="dropdownRole">attendee</span>
+              </div>
+              <hr class="dropdown-sep" />
+              <button onclick="window.location.href='./tickets.html'">My Tickets</button>
+              <button onclick="logout()" class="logout-btn">Log out</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- TOASTS -->
+  <div class="toast-container" id="toastContainer"></div>
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="hero-bg">
+      <div class="orb orb1"></div>
+      <div class="orb orb2"></div>
+      <div class="orb orb3"></div>
+    </div>
+    <div class="hero-content">
+      <div class="hero-badge">🎉 Discover what's happening near you</div>
+      <h1>Find & Book<br /><span class="gradient-text">Extraordinary Events</span></h1>
+      <p>From tech conferences to music festivals — secure your seat before it's gone.</p>
+      <div class="hero-search">
+        <input id="searchInput" type="text" placeholder="Search events…" />
+        <button class="btn btn-primary" onclick="filterEvents()">Search</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- MAIN -->
+  <main class="main-content">
+    <div class="section-header">
+      <h2>Upcoming Events</h2>
+      <div class="filter-tabs">
+        <button class="filter-tab active" onclick="setFilter('all', this)">All</button>
+        <button class="filter-tab" onclick="setFilter('available', this)">Available</button>
+        <button class="filter-tab" onclick="setFilter('full', this)">Sold Out</button>
+      </div>
+    </div>
+    <div class="events-grid" id="eventsGrid">
+      <div class="skeleton-grid">
+        <div class="skeleton-card"></div>
+        <div class="skeleton-card"></div>
+        <div class="skeleton-card"></div>
+      </div>
+    </div>
+  </main>
+
+  <script src="./app.js"></script>
+</body>
+
+</html>

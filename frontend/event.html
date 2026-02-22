@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Event Details — Eventify</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet" />
+    <link rel="stylesheet" href="./style.css" />
+</head>
+
+<body data-page="event-detail">
+
+    <nav class="navbar" id="navbar">
+        <div class="nav-inner">
+            <a class="brand" href="./index.html">
+                <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+                    <rect width="28" height="28" rx="8" fill="url(#grad)" />
+                    <path d="M8 14l4 4 8-8" stroke="#fff" stroke-width="2.5" stroke-linecap="round"
+                        stroke-linejoin="round" />
+                    <defs>
+                        <linearGradient id="grad" x1="0" y1="0" x2="28" y2="28" gradientUnits="userSpaceOnUse">
+                            <stop stop-color="#7c3aed" />
+                            <stop offset="1" stop-color="#2563eb" />
+                        </linearGradient>
+                    </defs>
+                </svg>
+                Eventify
+            </a>
+            <div class="nav-links">
+                <a href="./index.html" class="nav-link">Browse Events</a>
+                <a href="./tickets.html" class="nav-link auth-req" style="display:none">My Tickets</a>
+                <a href="./create.html" class="nav-link org-req" style="display:none">Create Event</a>
+            </div>
+            <div class="nav-actions">
+                <div id="guestActions"><a href="./login.html" class="btn btn-ghost">Log in</a><a href="./register.html"
+                        class="btn btn-primary">Sign up</a></div>
+                <div id="userActions" style="display:none">
+                    <div class="avatar-menu">
+                        <button class="avatar-btn" id="avatarBtn" onclick="toggleUserMenu()"><span
+                                id="avatarInitial">?</span></button>
+                        <div class="user-dropdown" id="userDropdown">
+                            <div class="dropdown-header"><span id="dropdownName">User</span><span class="dropdown-role"
+                                    id="dropdownRole">attendee</span></div>
+                            <hr class="dropdown-sep" />
+                            <button onclick="window.location.href='./tickets.html'">My Tickets</button><button
+                                onclick="logout()" class="logout-btn">Log out</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="toast-container" id="toastContainer"></div>
+
+    <main class="main-content" style="padding-top: 3rem;">
+        <a href="./index.html" class="back-btn">← Back to Events</a>
+        <div id="eventDetailContent">
+            <div class="skeleton-card" style="height:280px;margin-bottom:2rem"></div>
+            <div class="skeleton-card" style="height:200px"></div>
+        </div>
+    </main>
+
+    <div class="modal-overlay" id="bookingModal" onclick="closeModalIfBg(event, 'bookingModal')">
+        <div class="modal modal-sm">
+            <div class="modal-header">
+                <h3 id="bookingModalTitle">Confirm Booking</h3>
+                <button class="modal-close" onclick="closeModal('bookingModal')">✕</button>
+            </div>
+            <p id="bookingModalBody">Are you sure you want to book this event?</p>
+            <div class="modal-actions">
+                <button class="btn btn-ghost" onclick="closeModal('bookingModal')">Cancel</button>
+                <button class="btn btn-primary" id="confirmBookBtn" onclick="confirmBook()">Book Now 🎟️</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="./app.js"></script>
+</body>
+
+</html>

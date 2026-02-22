@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Create Event — Eventify</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet" />
+    <link rel="stylesheet" href="./style.css" />
+</head>
+
+<body data-page="create">
+
+    <nav class="navbar" id="navbar">
+        <div class="nav-inner">
+            <a class="brand" href="./index.html">
+                <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+                    <rect width="28" height="28" rx="8" fill="url(#grad)" />
+                    <path d="M8 14l4 4 8-8" stroke="#fff" stroke-width="2.5" stroke-linecap="round"
+                        stroke-linejoin="round" />
+                    <defs>
+                        <linearGradient id="grad" x1="0" y1="0" x2="28" y2="28" gradientUnits="userSpaceOnUse">
+                            <stop stop-color="#7c3aed" />
+                            <stop offset="1" stop-color="#2563eb" />
+                        </linearGradient>
+                    </defs>
+                </svg>
+                Eventify
+            </a>
+            <div class="nav-links">
+                <a href="./index.html" class="nav-link">Browse Events</a>
+                <a href="./tickets.html" class="nav-link auth-req" style="display:none">My Tickets</a>
+                <a href="./create.html" class="nav-link active org-req" style="display:none">Create Event</a>
+            </div>
+            <div class="nav-actions">
+                <div id="guestActions"><a href="./login.html" class="btn btn-ghost">Log in</a><a href="./register.html"
+                        class="btn btn-primary">Sign up</a></div>
+                <div id="userActions" style="display:none">
+                    <div class="avatar-menu">
+                        <button class="avatar-btn" id="avatarBtn" onclick="toggleUserMenu()"><span
+                                id="avatarInitial">?</span></button>
+                        <div class="user-dropdown" id="userDropdown">
+                            <div class="dropdown-header"><span id="dropdownName">User</span><span class="dropdown-role"
+                                    id="dropdownRole">attendee</span></div>
+                            <hr class="dropdown-sep" />
+                            <button onclick="window.location.href='./tickets.html'">My Tickets</button><button
+                                onclick="logout()" class="logout-btn">Log out</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="toast-container" id="toastContainer"></div>
+
+    <main class="main-content" style="padding-top: 3rem; max-width: 720px;">
+        <div class="section-header">
+            <h2>Create New Event</h2>
+        </div>
+        <div class="form-card">
+            <form id="createEventForm" onsubmit="submitCreateEvent(event)">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Event Title *</label>
+                        <input type="text" id="evTitle" placeholder="Go Conference 2025" required />
+                    </div>
+                    <div class="form-group">
+                        <label>Capacity *</label>
+                        <input type="number" id="evCapacity" placeholder="100" min="1" required />
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Description</label>
+                    <textarea id="evDescription" rows="4" placeholder="Describe your event…"></textarea>
+                </div>
+                <div class="form-group">
+                    <label>Event Date & Time *</label>
+                    <input type="datetime-local" id="evDate" required />
+                </div>
+                <button type="submit" class="btn btn-primary btn-lg" id="createEventBtn" style="margin-top: 1rem;">
+                    <span>Publish Event</span>
+                </button>
+            </form>
+        </div>
+    </main>
+
+    <script src="./app.js"></script>
+</body>
+
+</html>
