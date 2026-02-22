@@ -1,106 +1,204 @@
-# Event Registration & Ticketing System API
+# Eventify — Event Registration and Ticketing System
+This project is a high-performance REST API designed for event management. Built with Go using the Gin framework and GORM, it features a modern multi-page frontend. The system handles secure user authentication, event creation, and concurrency-safe ticket booking through a dedicated three-layer protection strategy.
 
-## Project Overview
-This project is a RESTful Event Registration and Ticketing System built using Go (Golang), Gin, GORM, and SQLite.
+Table of Contents
+- [Architecture Overview](#architecture-overview)
+- [Tech Stack](#tech-stack)
+- [Database Schema and Concurrency](#database-schema-and-concurrency)
+- [REST API Documentation](#rest-api-documentation)
+- [Setup and Running Instructions](#setup-and-running-instructions)
+- [How AI Was Used](#how-ai-was-used)
+- [Project Structure](#project-structure)
+- [Author](#author)
 
-The system allows:
-- Organizers to create and manage events
-- Attendees to browse events and register for seats
-- Real-time tracking of available capacity
-- High-concurrency handling to prevent overbooking
+## Architecture Overview
+The application uses a clean, layered architecture with a clear separation of concerns. This ensures the backend remains modular, maintainable, and easy to test.
 
-This project was implemented as part of the Go Capstone project, specifically focusing on the challenge of managing multiple users trying to book the last remaining spots for an event simultaneously.
+```mermaid
+graph TD
+    Client[Browser / Postman] -->|HTTP/JSON| API[Gin Router]
+    subgraph Backend
+        API --> Handlers[Handlers Layer]
+        Handlers --> Services[Services Layer]
+        Services --> Repository[Repository Layer]
+        Repository --> DB[(SQLite Database)]
+    end
+```
+
+### Layer Responsibilities
+| Layer | Package | Responsibility |
+|-------|---------|----------------|
+| **Handlers** | `internal/handlers/` | Translates incoming HTTP requests, validates inputs, and formats JSON responses. |
+| **Services** | `internal/services/` | Contains core business logic, including the three-layer concurrency protection logic. |
+| **Repository** | `internal/repositories/` | Manages all database operations using GORM. |
+| **Models** | `internal/models/` | Defines the data structures and Database/JSON mappings. |
+| **Database** | `internal/database/` | Handles the database connection and automatic migrations. |
 
 ## Tech Stack
-- Go 1.25: The fast and efficient language powering the app.
-- Gin: Handles the web connections and API.
-- GORM: Manages how data is saved and retrieved.
-- SQLite: A simple, built-in database that needs no setup.
-- UUID: Creates unique identities for every user and event.
-- Concurrency Protection: Prevents overbooking even when many people click at once.
+### Backend
+- **Go 1.25**: A fast, strongly typed language for efficient backend processing.
+- **Gin**: A minimal and fast HTTP web framework for routing.
+- **GORM**: A developer-friendly ORM for managing database interactions in Go.
+- **SQLite**: A reliable, zero-configuration embedded database for local storage.
+- **JWT**: Secure token-based authentication for protected routes.
+- **Bcrypt**: Standard password hashing to ensure user security.
 
-## How to Run the Project
+### Frontend
+- **Vanilla JavaScript**: Pure, fast logic for interactive elements without external framework overhead.
+- **CSS3**: Modern styling with glassmorphism and smooth interface transitions.
+- **HTML5**: Semantic structure for a professional Multi-Page Application (MPA).
 
-You can run these commands directly in your **VS Code Terminal** (press `Ctrl + ` to open it):
+## Database Schema and Concurrency
+### Schema Details
+The system manages three primary tables, which are automatically migrated by GORM:
 
-1. Clone the repository
-```bash
-git clone https://github.com/Amrutavarshini24/Eventregistration.git
-cd Eventregistration
+#### users Table
+```sql
+CREATE TABLE users (
+    id         VARCHAR(36) PRIMARY KEY,
+    name       TEXT NOT NULL,
+    email      TEXT NOT NULL UNIQUE,
+    password   TEXT NOT NULL,
+    role       TEXT DEFAULT 'attendee'
+);
 ```
 
-2. Install dependencies
-```bash
-go mod tidy
+#### events Table
+```sql
+CREATE TABLE events (
+    id          VARCHAR(36) PRIMARY KEY,
+    title       TEXT NOT NULL,
+    description TEXT,
+    capacity    INTEGER NOT NULL,
+    registered  INTEGER DEFAULT 0,
+    organizer_id VARCHAR(36) REFERENCES users(id)
+);
 ```
 
-3. Setup environment
-Copy the example environment file:
-```bash
-cp .env.example .env
+#### registrations Table
+```sql
+CREATE TABLE registrations (
+    id         VARCHAR(36) PRIMARY KEY,
+    user_id    VARCHAR(36) REFERENCES users(id),
+    event_id   VARCHAR(36) REFERENCES events(id),
+    status     TEXT DEFAULT 'confirmed',
+    UNIQUE(user_id, event_id, status) -- Prevents duplicate bookings
+);
 ```
 
-4. Run the server
-```bash
-go run main.go
+### Three-Layer Concurrency Defense
+To prevent overbooking when multiple users attempt to register at the same time, the system uses a three-layer protection strategy:
+1. **Application Mutex**: Serializes booking requests for the same event at the service level.
+2. **Database Transaction**: Ensures the entire registration process succeeds or fails as a single atomic unit.
+3. **Conditional UPDATE**: A final check at the database level (`registered < capacity`) ensures it is impossible to book a seat if the event is already full.
+
+## REST API Documentation
+Base URL: `http://localhost:8080/api`
+
+### Auth Endpoints
+#### POST /auth/register — Create Account
+**Request Body:**
+```json
+{
+    "name": "Jane Doe",
+    "email": "jane@example.com",
+    "password": "securepassword",
+    "role": "organizer"
+}
 ```
 
-Server runs at: http://localhost:8080
+#### POST /auth/login — Sign In
+Returns a JWT token required for protected routes.
 
-## Database
-- SQLite database file: backend/event_ticketing_dev.db
-- Tables are automatically created using GORM AutoMigrate.
-- Database constraints (Unique Indices) ensure data integrity at the row level.
+---
 
-## API Endpoints
+### Event Endpoints
+#### GET /api/events — List All Events
+Returns a list of all upcoming events along with their current registration status.
 
-### Auth
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| POST   | /auth/register | Register a new user |
-| POST   | /auth/login    | Login and receive JWT token |
+#### POST /api/events — Create Event (Organizer Only)
+**Request Body:**
+```json
+{
+    "title": "Tech Summit 2026",
+    "description": "A deep dive into Go concurrency.",
+    "capacity": 100
+}
+```
 
-### Events
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| POST   | /events | Create a new event (Organizer only) |
-| GET    | /events | Get all listed events |
-| GET    | /events/:id | Get detailed information for a single event |
+---
 
-### Booking
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| POST   | /events/:id/register | Book a seat for an event |
-| GET    | /me/registrations   | View all bookings for the logged-in user |
+### Booking Endpoints
+#### POST /api/events/:id/register — Book a Seat
+Requires a valid JWT token. This endpoint prevents both overbooking and duplicate registrations.
 
-## Concurrency Handling
-The booking operation is handled using a three-layered defense system to prevent race conditions and overbooking:
+#### GET /api/me/registrations — My Tickets
+Returns all events that the current user has registered for.
 
-1. Per-Event Mutex: Serializes booking requests for the same event at the application level.
-2. Database Transactions: Ensures all operations (checking capacity, incrementing seats, and creating registration) succeed or fail together.
-3. Conditional UPDATE: Uses a WHERE clause (registered < capacity) at the database level as the ultimate net to guarantee no overbooking occurs even in multi-node deployments.
+## Setup and Running Instructions
+### Prerequisites
+- Go installed on your system.
+- VS Code (Recommended for the best development experience).
 
-## Testing
-The system includes specialized stress tests to simulate high-concurrency environments:
+### Steps to Run
+1. **Clone the repository**:
+   ```bash
+   git clone https://github.com/Amrutavarshini24/Eventregistration.git
+   cd Eventregistration
+   ```
 
-- Concurrent Booking Test: Simulates 50 users racing for 5 seats to verify that no overbooking occurs.
-- Race Detector: All tests are verified using the Go race detector to ensure thread safety.
+2. **Start the Backend**:
+   Navigate to the `backend/` directory and run:
+   ```bash
+   go mod tidy
+   go run main.go
+   ```
 
-## Key Features
-- Transaction-safe booking
-- Real-time capacity management
-- Role-based security (Organizer / Attendee)
-- Three-layer concurrency protection
-- Persistent SQLite database
-- RESTful design
+3. **Open the Frontend**:
+   Simply open `frontend/index.html` in your web browser or use the VS Code Live Server extension.
 
-## How AI was used
-I used AI prompts as a guide to help build different parts of this project:
-- Setting up the main project structure and folders.
-- Writing the code that prevents two people from booking the same seat.
-- Transforming the website design from one page to several separate pages.
-- Making the website look modern with nice colors and smooth animations.
-- Helping organize and write the descriptions in this README.
+## How AI Was Used
+AI was used as a guide to help build and refine various parts of this project:
+- Establishing the main project structure and directory organization.
+- Implementing the logic that prevents concurrent booking conflicts.
+- Redesigning the website from a single page into a multi-page application.
+- Polishing the visual design with modern colors and smooth animations.
+- Organizing and drafting the technical descriptions in this documentation.
+
+## Backend API Verification
+You can use these `curl` commands in your terminal to verify that the backend is running correctly:
+
+**1. Health Check**
+```bash
+curl http://localhost:8080/health
+```
+
+**2. List All Events**
+```bash
+curl http://localhost:8080/api/events
+```
+
+**3. Test Registration**
+```bash
+curl -X POST http://localhost:8080/api/auth/register \
+     -H "Content-Type: application/json" \
+     -d '{"name":"Test User","email":"test@example.com","password":"password123"}'
+```
+
+## Project Structure
+```text
+Eventregistration/
+├── backend/
+│   ├── cmd/server/       # HTTP server setup
+│   ├── internal/
+│   │   ├── handlers/     # API request logic
+│   │   ├── services/     # Core business logic
+│   │   ├── repositories/ # Database interactions
+│   │   └── models/       # Data structures
+│   └── main.go           # Application entry
+├── frontend/             # HTML, CSS, and JavaScript files
+└── postman_collection.json # API test endpoints for Postman
+```
 
 ## Author
 Amrutavarshini Beernalli
